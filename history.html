@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>過去データ - リスト表アプリ</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>過去データ</h1>
+    <div class="header-actions">
+      <input type="date" id="history-date" />
+      <a href="index.html">営業画面に戻る</a>
+    </div>
+  </header>
+  <main>
+    <div class="grid-scroll" id="history-table"></div>
+    <div id="history-totals"></div>
+  </main>
+  <script type="module" src="js/history-entry.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>キャスト管理 - リスト表アプリ</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>キャスト管理</h1>
+    <div class="header-actions">
+      <a href="history.html">過去データ</a>
+      <a href="index.html">営業画面に戻る</a>
+    </div>
+  </header>
+  <main>
+    <div class="admin-two-column">
+      <div class="admin-column">
+        <h2>在籍一覧</h2>
+        <div id="cast-list"></div>
+        <div class="cast-add-form">
+          <input type="text" id="new-cast-name" placeholder="キャスト名" />
+          <button id="add-cast-button">追加</button>
+        </div>
+      </div>
+      <div class="admin-column">
+        <h2>備考プリセット</h2>
+        <div id="note-presets-list"></div>
+        <div class="note-preset-add-form">
+          <input type="text" id="new-note-preset" placeholder="プリセット内容" maxlength="20" />
+          <button id="add-note-preset-button">追加</button>
+        </div>
+      </div>
+    </div>
+    <h2>本日の完了状況</h2>
+    <div id="completion-list"></div>
+  </main>
+  <script type="module" src="js/admin-entry.js"></script>
+</body>
+</html>
