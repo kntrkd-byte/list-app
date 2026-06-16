@@ -169,8 +169,20 @@ function makeStartCell(visit, onSetPlannedEndTime, onEditPlannedEndTime) {
   }
 
   toggleButton.addEventListener('click', () => {
-    buttonGroup.classList.toggle('open');
-    td.classList.toggle('menu-open', buttonGroup.classList.contains('open'));
+    const isOpen = buttonGroup.classList.toggle('open');
+    td.classList.toggle('menu-open', isOpen);
+    if (isOpen) {
+      const rect = toggleButton.getBoundingClientRect();
+      buttonGroup.style.left = `${rect.left}px`;
+      buttonGroup.style.top = `${rect.bottom}px`;
+      const popupRect = buttonGroup.getBoundingClientRect();
+      if (popupRect.right > window.innerWidth) {
+        buttonGroup.style.left = `${Math.max(0, window.innerWidth - popupRect.width - 4)}px`;
+      }
+      if (popupRect.bottom > window.innerHeight) {
+        buttonGroup.style.top = `${Math.max(0, rect.top - popupRect.height)}px`;
+      }
+    }
   });
 
   row1.appendChild(buttonGroup);

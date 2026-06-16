@@ -23,7 +23,7 @@ import { openCastPopover, closeCastPopover } from './castPopover.js';
 import { openAccountingModal, closeAccountingModal } from './paymentEditor.js';
 import { openNewVisitModal } from './newVisitModal.js';
 import { openNotePresetsModal } from './notePresetsModal.js';
-import { openCompleteModal, closeCompleteModal } from './completeModal.js';
+import { openCompleteModal, openRevertModal, closeCompleteModal } from './completeModal.js';
 
 const STORE_NAME = 'STORE';
 const DEFAULT_CASTS = ['マイ', 'リン', 'カリン', 'トモミ', 'サキ'];
@@ -92,12 +92,22 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   function handleComplete(visit) {
     closeCastPopover();
     closeAccountingModal();
-    const groupNumbers = assignGroupNumbers(visits);
-    openCompleteModal(visit, groupNumbers.get(visit.groupId), async (endTime) => {
-      markComplete(visit, endTime);
-      await updateVisit(db, visit);
-      await refresh();
-    });
+    const groupNumber = assignGroupNumbers(visits).get(visit.groupId);
+    if (visit.completed) {
+      openRevertModal(visit, groupNumber, async () => {
+        visit.completed = false;
+        visit.endTime = '';
+        visit.completedAt = '';
+        await updateVisit(db, visit);
+        await refresh();
+      });
+    } else {
+      openCompleteModal(visit, groupNumber, async (endTime) => {
+        markComplete(visit, endTime);
+        await updateVisit(db, visit);
+        await refresh();
+      });
+    }
   }
 
   async function handleSetPlannedEndTime(visit, minutes) {

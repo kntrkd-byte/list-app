@@ -72,6 +72,60 @@ export function openCompleteModal(visit, groupNumber, onConfirm) {
   return modal;
 }
 
+export function openRevertModal(visit, groupNumber, onConfirm) {
+  closeCompleteModal();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.addEventListener('click', () => closeCompleteModal());
+  document.body.appendChild(overlay);
+  currentOverlay = overlay;
+
+  const modal = document.createElement('div');
+  modal.className = 'complete-modal';
+
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.dataset.action = 'close';
+  closeButton.textContent = '×';
+  closeButton.addEventListener('click', () => closeCompleteModal());
+  modal.appendChild(closeButton);
+
+  const title = document.createElement('div');
+  title.className = 'complete-modal-title';
+  title.textContent = '完了を解除';
+  modal.appendChild(title);
+
+  const info = document.createElement('div');
+  info.className = 'complete-modal-info';
+  const tablePart = visit.table ? `卓${visit.table}` : '卓-';
+  const endPart = visit.endTime ? `／ 完了 ${visit.endTime}` : '';
+  info.textContent = `${groupNumber}組 ${tablePart} ${endPart}`;
+  modal.appendChild(info);
+
+  const confirmButton = document.createElement('button');
+  confirmButton.type = 'button';
+  confirmButton.className = 'revert-confirm';
+  confirmButton.textContent = '完了を解除する';
+  confirmButton.addEventListener('click', () => {
+    onConfirm();
+    closeCompleteModal();
+  });
+  modal.appendChild(confirmButton);
+
+  document.body.appendChild(modal);
+  currentModal = modal;
+
+  currentKeydownHandler = (event) => {
+    if (event.key === 'Escape') {
+      closeCompleteModal();
+    }
+  };
+  document.addEventListener('keydown', currentKeydownHandler);
+
+  return modal;
+}
+
 export function closeCompleteModal() {
   if (currentModal) {
     currentModal.remove();
