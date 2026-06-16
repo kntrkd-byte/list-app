@@ -43,7 +43,25 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   const allCasts = await getCasts(db, STORE_NAME);
   const workingCasts = allCasts.filter((cast) => cast.working);
 
-  workingCastsContainer.textContent = `本日の出勤: ${workingCasts.map((cast) => cast.name).join('、')}`;
+  workingCastsContainer.innerHTML = '';
+  const workingLabel = document.createElement('span');
+  workingLabel.className = 'working-casts-label';
+  workingLabel.textContent = '本日の出勤';
+  workingCastsContainer.appendChild(workingLabel);
+
+  if (workingCasts.length === 0) {
+    const empty = document.createElement('span');
+    empty.className = 'working-casts-empty';
+    empty.textContent = 'なし';
+    workingCastsContainer.appendChild(empty);
+  } else {
+    for (const cast of workingCasts) {
+      const chip = document.createElement('span');
+      chip.className = 'cast-chip';
+      chip.textContent = cast.name;
+      workingCastsContainer.appendChild(chip);
+    }
+  }
 
   async function refresh() {
     visits = await getVisitsByStoreAndDate(db, STORE_NAME, today);
