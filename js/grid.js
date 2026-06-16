@@ -310,9 +310,13 @@ function makeNoCell(number, visit, onComplete) {
   button.type = 'button';
   button.dataset.field = 'complete';
   button.className = 'no-button';
-  button.textContent = visit.completed ? '済' : String(number);
+  button.textContent = String(number);
   if (visit.completed) {
     button.classList.add('no-button--completed');
+    const check = document.createElement('span');
+    check.className = 'no-check';
+    check.textContent = '✓';
+    button.appendChild(check);
   }
   button.addEventListener('click', () => onComplete(visit));
   td.appendChild(button);

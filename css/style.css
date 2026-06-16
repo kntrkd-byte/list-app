@@ -34,16 +34,14 @@ header {
   margin-bottom: 1rem;
 }
 
-#new-visit-section {
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
 #new-visit-button {
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
-  min-width: 200px;
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  white-space: nowrap;
 }
 
 .grid-scroll {
@@ -145,10 +143,19 @@ table.visit-grid th:nth-child(5), table.visit-grid td:nth-child(5) {
   box-shadow: 6px 0 8px -4px rgba(0, 0, 0, 0.6);
 }
 
-/* 中央スクロール列: S, N1〜N10, 境界セル (6〜26列目) */
-table.visit-grid th:nth-child(n+6):nth-child(-n+26),
-table.visit-grid td:nth-child(n+6):nth-child(-n+26) {
-  width: 50px;
+/* 中央キャスト列: S, N1〜N10 (6,8,10,...,26列目) — 単一nth-childで境界列と詳細度を揃える */
+table.visit-grid th:nth-child(6), table.visit-grid td:nth-child(6),
+table.visit-grid th:nth-child(8), table.visit-grid td:nth-child(8),
+table.visit-grid th:nth-child(10), table.visit-grid td:nth-child(10),
+table.visit-grid th:nth-child(12), table.visit-grid td:nth-child(12),
+table.visit-grid th:nth-child(14), table.visit-grid td:nth-child(14),
+table.visit-grid th:nth-child(16), table.visit-grid td:nth-child(16),
+table.visit-grid th:nth-child(18), table.visit-grid td:nth-child(18),
+table.visit-grid th:nth-child(20), table.visit-grid td:nth-child(20),
+table.visit-grid th:nth-child(22), table.visit-grid td:nth-child(22),
+table.visit-grid th:nth-child(24), table.visit-grid td:nth-child(24),
+table.visit-grid th:nth-child(26), table.visit-grid td:nth-child(26) {
+  width: 46px;
 }
 
 /* 延長タイムライン境界列 (7,9,11,...,25列目) */
@@ -162,7 +169,7 @@ table.visit-grid th:nth-child(19), table.visit-grid td:nth-child(19),
 table.visit-grid th:nth-child(21), table.visit-grid td:nth-child(21),
 table.visit-grid th:nth-child(23), table.visit-grid td:nth-child(23),
 table.visit-grid th:nth-child(25), table.visit-grid td:nth-child(25) {
-  width: 10px;
+  width: 8px;
   padding: 0;
 }
 
@@ -200,9 +207,10 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
 }
 
 .ext-bar {
-  width: 50%;
-  height: 100%;
-  min-height: 30px;
+  width: 55%;
+  height: 80%;
+  min-height: 24px;
+  vertical-align: middle;
   border: none;
   border-radius: 2px;
   background-color: var(--color-surface-alt);
@@ -603,9 +611,21 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
   padding: 0;
 }
 
+.no-cell .no-button {
+  position: relative;
+}
+
 .no-cell .no-button--completed {
-  color: var(--color-danger);
   font-weight: bold;
+}
+
+.no-cell .no-check {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  font-size: 0.6rem;
+  line-height: 1;
+  color: #4ade80;
 }
 
 .header-actions {
