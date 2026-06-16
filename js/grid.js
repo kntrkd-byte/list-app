@@ -394,12 +394,14 @@ function makeTextInputCell(visit, field, onChange) {
 function makeNoteClickCell(visit, onCellClick) {
   const td = document.createElement('td');
   td.className = 'note-cell';
-  const parts = (visit.note || '').split('・');
+  const parts = (visit.note || '').split('・').filter(Boolean);
+  // 0〜1件は真ん中に1スロット、2件のときだけ2段表示
+  const slotCount = parts.length >= 2 ? 2 : 1;
 
   const wrap = document.createElement('div');
   wrap.className = 'note-slots';
 
-  for (let i = 0; i < 2; i += 1) {
+  for (let i = 0; i < slotCount; i += 1) {
     const slot = document.createElement('span');
     slot.className = 'note-slot';
 

@@ -377,9 +377,11 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
 }
 
 .cast-popover {
-  width: min(90vw, 360px);
+  width: min(92vw, 560px);
   max-height: 80vh;
-  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .accounting-modal {
@@ -389,16 +391,29 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
   padding: 1.5rem;
 }
 
-.cast-popover button {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  margin-top: 0.5rem;
+.cast-popover-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.4rem;
+  overflow-y: auto;
+  margin-bottom: 0.6rem;
 }
 
-.cast-popover button:first-child {
-  margin-top: 0;
+.cast-popover-grid button {
+  width: 100%;
+  padding: 0.6rem 0.4rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cast-popover-clear {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .modal-overlay {

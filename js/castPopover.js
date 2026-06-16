@@ -13,6 +13,9 @@ export function openCastPopover(anchorEl, casts, onSelect) {
   const popover = document.createElement('div');
   popover.className = 'cast-popover';
 
+  const grid = document.createElement('div');
+  grid.className = 'cast-popover-grid';
+
   for (const cast of casts) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -21,8 +24,10 @@ export function openCastPopover(anchorEl, casts, onSelect) {
       onSelect(cast.name);
       closeCastPopover();
     });
-    popover.appendChild(button);
+    grid.appendChild(button);
   }
+
+  popover.appendChild(grid);
 
   const clearButton = document.createElement('button');
   clearButton.type = 'button';
