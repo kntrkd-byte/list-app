@@ -98,6 +98,9 @@ function makeCastColumnCell(visit, columnIndex, onCellClick) {
   td.className = 'cast-column-cell';
   const slots = ensureCastColumns(visit)[columnIndex];
 
+  const wrap = document.createElement('div');
+  wrap.className = 'cast-slots';
+
   for (let slot = 0; slot < 2; slot += 1) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -107,9 +110,10 @@ function makeCastColumnCell(visit, columnIndex, onCellClick) {
     button.dataset.slot = String(slot);
     button.textContent = slots[slot] || '';
     button.addEventListener('click', () => onCellClick(visit, 'castColumn', button, columnIndex * 2 + slot));
-    td.appendChild(button);
+    wrap.appendChild(button);
   }
 
+  td.appendChild(wrap);
   return td;
 }
 
@@ -391,7 +395,12 @@ function makeNoteClickCell(visit, onCellClick) {
   const td = document.createElement('td');
   const span = document.createElement('span');
   span.className = 'note-display';
-  span.textContent = visit.note || '';
+  if (visit.note) {
+    span.textContent = visit.note;
+  } else {
+    span.textContent = '＋';
+    span.classList.add('note-display--empty');
+  }
   span.addEventListener('click', () => {
     onCellClick(visit, 'note', span, 0);
   });

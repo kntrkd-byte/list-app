@@ -820,6 +820,10 @@ input[data-field="note"] {
   text-overflow: ellipsis;
 }
 
+.note-display--empty {
+  color: var(--color-text-faint);
+}
+
 .group-size-options button.selected {
   background-color: var(--color-accent);
   color: var(--color-accent-text);
@@ -880,12 +884,20 @@ table.visit-grid td.start-cell.menu-open {
 
 .cast-column-cell {
   padding: 0;
+  position: relative;
+}
+
+.cast-column-cell .cast-slots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .cast-column-cell .cast-slot {
-  display: block;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 19px;
   font-size: 0.75rem;
   border-radius: 0;
   border: none;
