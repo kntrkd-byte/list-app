@@ -39,6 +39,13 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   const newVisitButton = root.querySelector('#new-visit-button');
   const workingCastsContainer = root.querySelector('#working-casts');
 
+  const dateEl = root.querySelector('#today-date');
+  if (dateEl) {
+    const [y, m, d] = today.split('-').map(Number);
+    const weekday = ['日', '月', '火', '水', '木', '金', '土'][new Date(y, m - 1, d).getDay()];
+    dateEl.textContent = `${y}年${m}月${d}日(${weekday})`;
+  }
+
   let visits = [];
   const allCasts = await getCasts(db, STORE_NAME);
   const workingCasts = allCasts.filter((cast) => cast.working);

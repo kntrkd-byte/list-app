@@ -393,17 +393,30 @@ function makeTextInputCell(visit, field, onChange) {
 
 function makeNoteClickCell(visit, onCellClick) {
   const td = document.createElement('td');
-  const span = document.createElement('span');
-  span.className = 'note-display';
-  if (visit.note) {
-    span.textContent = visit.note;
-  } else {
-    span.textContent = '＋';
-    span.classList.add('note-display--empty');
+  td.className = 'note-cell';
+  const parts = (visit.note || '').split('・');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'note-slots';
+
+  for (let i = 0; i < 2; i += 1) {
+    const slot = document.createElement('span');
+    slot.className = 'note-slot';
+
+    const text = document.createElement('span');
+    text.className = 'note-text';
+    const value = parts[i] || '';
+    if (value) {
+      text.textContent = value;
+    } else {
+      text.textContent = '＋';
+      slot.classList.add('note-slot--empty');
+    }
+    slot.appendChild(text);
+    slot.addEventListener('click', () => onCellClick(visit, 'note', slot, i));
+    wrap.appendChild(slot);
   }
-  span.addEventListener('click', () => {
-    onCellClick(visit, 'note', span, 0);
-  });
-  td.appendChild(span);
+
+  td.appendChild(wrap);
   return td;
 }
