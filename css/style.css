@@ -259,6 +259,7 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
 }
 
 .ext-bar {
+  position: relative;
   width: 55%;
   height: 80%;
   min-height: 24px;
@@ -268,6 +269,13 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   background-color: var(--color-surface-alt);
   cursor: pointer;
   padding: 0;
+}
+
+.ext-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0 -26px;
+  cursor: pointer;
 }
 
 .ext-bar--half {
