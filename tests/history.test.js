@@ -80,6 +80,17 @@ describe('renderHistoryTable', () => {
     expect(modal.textContent).toContain('ゆい');
   });
 
+  it('closes the payment detail modal when the overlay is clicked', () => {
+    const container = document.createElement('div');
+    renderHistoryTable(container, [makeVisit()]);
+
+    container.querySelector('[data-action="show-payment-detail"]').click();
+    expect(document.querySelector('.history-payment-modal')).not.toBeNull();
+
+    document.querySelector('.modal-overlay').click();
+    expect(document.querySelector('.history-payment-modal')).toBeNull();
+  });
+
   it('shows cast column summary in 付け回し履歴 cell', () => {
     const container = document.createElement('div');
     const castColumns = Array(11).fill(null).map(() => ['', '']);

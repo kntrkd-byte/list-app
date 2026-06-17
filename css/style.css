@@ -822,12 +822,13 @@ button[data-field="table"] {
 .table-select-popup {
   display: none;
   position: fixed;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
-  padding: 4px;
-  z-index: 100;
+  border-radius: 8px;
+  padding: 8px;
+  z-index: 101;
   width: max-content;
 }
 
@@ -836,9 +837,16 @@ button[data-field="table"] {
 }
 
 .table-select-popup button {
-  padding: 6px;
-  font-size: 1rem;
-  min-width: 2.5em;
+  padding: 10px 6px;
+  font-size: 1.1rem;
+  min-width: 3em;
+}
+
+.table-select-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: transparent;
 }
 
 table.visit-grid td.table-cell.menu-open {

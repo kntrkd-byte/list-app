@@ -315,10 +315,20 @@ function makeTableSelectCell(visit, onChange) {
   const popup = document.createElement('div');
   popup.className = 'table-select-popup';
 
-  const selectValue = (value) => {
-    onChange(visit, value);
+  let overlay = null;
+
+  const closePopup = () => {
     popup.classList.remove('open');
     td.classList.remove('menu-open');
+    if (overlay) {
+      overlay.remove();
+      overlay = null;
+    }
+  };
+
+  const selectValue = (value) => {
+    onChange(visit, value);
+    closePopup();
   };
 
   const emptyOption = document.createElement('button');
@@ -338,16 +348,24 @@ function makeTableSelectCell(visit, onChange) {
   }
 
   toggleButton.addEventListener('click', () => {
-    const isOpen = popup.classList.toggle('open');
-    td.classList.toggle('menu-open', isOpen);
-    if (isOpen) {
-      const rect = toggleButton.getBoundingClientRect();
-      popup.style.left = `${rect.left}px`;
-      popup.style.top = `${rect.bottom}px`;
-      const popupRect = popup.getBoundingClientRect();
-      if (popupRect.bottom > window.innerHeight) {
-        popup.style.top = `${Math.max(0, rect.top - popupRect.height)}px`;
-      }
+    if (popup.classList.contains('open')) {
+      closePopup();
+      return;
+    }
+    popup.classList.add('open');
+    td.classList.add('menu-open');
+
+    overlay = document.createElement('div');
+    overlay.className = 'table-select-overlay';
+    overlay.addEventListener('click', closePopup);
+    document.body.appendChild(overlay);
+
+    const rect = toggleButton.getBoundingClientRect();
+    popup.style.left = `${rect.left}px`;
+    popup.style.top = `${rect.bottom}px`;
+    const popupRect = popup.getBoundingClientRect();
+    if (popupRect.bottom > window.innerHeight) {
+      popup.style.top = `${Math.max(0, rect.top - popupRect.height)}px`;
     }
   });
 
