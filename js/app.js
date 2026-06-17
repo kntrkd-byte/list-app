@@ -25,6 +25,7 @@ import { openAccountingModal, closeAccountingModal } from './paymentEditor.js';
 import { openNewVisitModal } from './newVisitModal.js';
 import { openNotePresetsModal } from './notePresetsModal.js';
 import { openOperationsModal, closeOperationsModal } from './operationsModal.js';
+import { exportDailyExcel } from './export.js';
 
 const STORE_NAME = 'STORE';
 const DEFAULT_CASTS = ['マイ', 'リン', 'カリン', 'トモミ', 'サキ'];
@@ -103,6 +104,12 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
       card.textContent = `${label}: ${value}`;
       totalsContainer.appendChild(card);
     }
+
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'export-btn';
+    exportBtn.textContent = 'Excelで保存';
+    exportBtn.addEventListener('click', () => exportDailyExcel(visits, today));
+    totalsContainer.appendChild(exportBtn);
   }
 
   function handleFieldChange(field) {

@@ -353,6 +353,20 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   background-color: var(--color-surface);
 }
 
+.export-btn {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.export-btn:active {
+  opacity: 0.7;
+}
+
 .cast-popover,
 .accounting-modal,
 .new-visit-modal,
