@@ -215,7 +215,7 @@ table.visit-grid th:nth-child(20), table.visit-grid td:nth-child(20),
 table.visit-grid th:nth-child(22), table.visit-grid td:nth-child(22),
 table.visit-grid th:nth-child(24), table.visit-grid td:nth-child(24),
 table.visit-grid th:nth-child(26), table.visit-grid td:nth-child(26) {
-  width: 46px;
+  width: 60px;
 }
 
 /* 延長タイムライン境界列 (7,9,11,...,25列目) */
@@ -979,10 +979,13 @@ table.visit-grid td.start-cell.menu-open {
   flex: 1;
   min-height: 0;
   width: 100%;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cast-column-cell .cast-slot:last-child {
