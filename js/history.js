@@ -1,89 +1,110 @@
 import { openDatabase, getVisitsByStoreAndDate } from './db.js';
-import { calcRowSales, calcDailyTotals, assignGroupNumbers } from './models.js';
+import { calcRowSales, calcDailyTotals, assignGroupNumbers, sortVisitsByGroup } from './models.js';
 
 const STORE_NAME = 'STORE';
-const PAYMENT_METHODS = ['現金', 'カード', 'キャッシュレス', '売掛'];
 
-function sumByMethod(visit, method) {
-  return visit.payments
-    .filter((payment) => payment.method === method)
-    .reduce((sum, payment) => sum + payment.amount, 0);
+let currentModal = null;
+let currentOverlay = null;
+
+function closePaymentDetailModal() {
+  if (currentModal) {
+    currentModal.remove();
+    currentModal = null;
+  }
+  if (currentOverlay) {
+    currentOverlay.remove();
+    currentOverlay = null;
+  }
 }
-
-const HEADERS = ['組', '卓', '開始', '完了', ...PAYMENT_METHODS, '合計', '備考', '詳細'];
 
 function formatCastColumns(castColumns) {
   const labels = ['S', ...Array.from({ length: 10 }, (_, i) => `N${i + 1}`)];
-
   return (castColumns || [])
     .map((slots, index) => {
       const names = (slots || []).filter((name) => name);
-      if (names.length === 0) {
-        return null;
-      }
-      return `${labels[index]}: ${names.join('・')}`;
+      return names.length === 0 ? null : `${labels[index]}: ${names.join('・')}`;
     })
     .filter((entry) => entry !== null)
     .join(', ');
 }
 
-function buildDetailRow(visit) {
-  const tr = document.createElement('tr');
-  tr.className = 'history-detail-row';
-  tr.hidden = true;
+function openPaymentDetailModal(visit, groupNumber) {
+  closePaymentDetailModal();
 
-  const td = document.createElement('td');
-  td.colSpan = HEADERS.length;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.addEventListener('click', closePaymentDetailModal);
+  document.body.appendChild(overlay);
+  currentOverlay = overlay;
 
-  const detail = document.createElement('div');
-  detail.className = 'history-detail';
+  const modal = document.createElement('div');
+  modal.className = 'history-payment-modal operations-modal';
 
-  const timesSection = document.createElement('div');
-  timesSection.className = 'history-detail-section';
-  timesSection.textContent = `開始 ${visit.startTime} ／ 終了予定 ${visit.plannedEndTime || '-'} ／ 完了 ${visit.completedAt || '-'}`;
-  detail.appendChild(timesSection);
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.dataset.action = 'close';
+  closeBtn.textContent = '×';
+  closeBtn.addEventListener('click', closePaymentDetailModal);
+  modal.appendChild(closeBtn);
 
-  const nominationsSection = document.createElement('div');
-  nominationsSection.className = 'history-detail-section';
-  const nominationNames = (visit.nominations || []).map((nom) => nom.name);
-  nominationsSection.textContent = `指名: ${nominationNames.length > 0 ? nominationNames.join('、') : 'なし'}`;
-  detail.appendChild(nominationsSection);
+  const title = document.createElement('div');
+  title.className = 'operations-modal-title';
+  title.textContent = `${groupNumber}組 卓${visit.table || '-'}`;
+  modal.appendChild(title);
 
-  const castsSection = document.createElement('div');
-  castsSection.className = 'history-detail-section';
-  const castColumnsText = formatCastColumns(visit.castColumns);
-  castsSection.textContent = `キャスト: ${castColumnsText || 'なし'}`;
-  detail.appendChild(castsSection);
+  const times = document.createElement('div');
+  times.className = 'history-payment-section';
+  times.textContent = `開始 ${visit.startTime}`;
+  if (visit.plannedEndTime) times.textContent += ` ／ 終了予定 ${visit.plannedEndTime}`;
+  times.textContent += ` ／ 完了 ${visit.completedAt || '-'}`;
+  modal.appendChild(times);
 
-  const paymentsSection = document.createElement('div');
-  paymentsSection.className = 'history-detail-section';
+  const noms = (visit.nominations || []).map((n) => n.name).join('、') || 'なし';
+  const nomSection = document.createElement('div');
+  nomSection.className = 'history-payment-section';
+  nomSection.textContent = `指名: ${noms}`;
+  modal.appendChild(nomSection);
 
-  const paymentsLabel = document.createElement('span');
-  paymentsLabel.textContent = '会計履歴: ';
-  paymentsSection.appendChild(paymentsLabel);
-
-  const paymentsList = document.createElement('ul');
-  paymentsList.className = 'history-detail-payments';
-
-  if ((visit.payments || []).length === 0) {
-    const li = document.createElement('li');
-    li.textContent = 'なし';
-    paymentsList.appendChild(li);
-  } else {
-    for (const payment of visit.payments) {
-      const li = document.createElement('li');
-      li.textContent = `${payment.method} ¥${payment.amount}`;
-      paymentsList.appendChild(li);
-    }
+  const castText = formatCastColumns(visit.castColumns);
+  if (castText) {
+    const castSection = document.createElement('div');
+    castSection.className = 'history-payment-section';
+    castSection.textContent = `付け回し: ${castText}`;
+    modal.appendChild(castSection);
   }
 
-  paymentsSection.appendChild(paymentsList);
-  detail.appendChild(paymentsSection);
+  const payments = visit.payments || [];
+  const breakdownTitle = document.createElement('div');
+  breakdownTitle.className = 'history-payment-section history-payment-label';
+  breakdownTitle.textContent = '入金内訳';
+  modal.appendChild(breakdownTitle);
 
-  td.appendChild(detail);
-  tr.appendChild(td);
-  return tr;
+  if (payments.length === 0) {
+    const none = document.createElement('div');
+    none.className = 'history-payment-section';
+    none.textContent = 'なし';
+    modal.appendChild(none);
+  } else {
+    const list = document.createElement('ul');
+    list.className = 'history-detail-payments';
+    for (const payment of payments) {
+      const li = document.createElement('li');
+      li.textContent = `${payment.method} ¥${payment.amount}`;
+      list.appendChild(li);
+    }
+    modal.appendChild(list);
+  }
+
+  const total = document.createElement('div');
+  total.className = 'history-payment-total';
+  total.textContent = `合計 ¥${calcRowSales(visit)}`;
+  modal.appendChild(total);
+
+  document.body.appendChild(modal);
+  currentModal = modal;
 }
+
+const HEADERS = ['No.', '開始時', '組', '完了時', '卓番', '付け回し履歴', '合計', '備考'];
 
 export function renderHistoryTable(container, visits) {
   container.innerHTML = '';
@@ -104,43 +125,45 @@ export function renderHistoryTable(container, visits) {
   const tbody = document.createElement('tbody');
   const groupNumbers = assignGroupNumbers(visits);
 
-  for (const visit of visits) {
+  visits.forEach((visit, index) => {
     const tr = document.createElement('tr');
     tr.className = 'visit-row';
 
-    const cells = [
-      groupNumbers.get(visit.groupId),
-      visit.table,
-      visit.startTime,
-      visit.completedAt,
-      ...PAYMENT_METHODS.map((method) => sumByMethod(visit, method)),
-      `¥${calcRowSales(visit)}`,
-      visit.note,
+    const groupNumber = groupNumbers.get(visit.groupId);
+    const castSummary = formatCastColumns(visit.castColumns);
+
+    const rowData = [
+      { text: String(index + 1) },
+      { text: visit.startTime },
+      { text: String(groupNumber) },
+      { text: visit.completedAt || '-' },
+      { text: visit.table || '-' },
+      { text: castSummary || '-', className: 'history-cast-cell' },
     ];
 
-    for (const value of cells) {
+    for (const { text, className } of rowData) {
       const td = document.createElement('td');
-      td.textContent = String(value);
+      td.textContent = text;
+      if (className) td.className = className;
       tr.appendChild(td);
     }
 
-    const detailRow = buildDetailRow(visit);
+    const totalTd = document.createElement('td');
+    const totalBtn = document.createElement('button');
+    totalBtn.type = 'button';
+    totalBtn.dataset.action = 'show-payment-detail';
+    totalBtn.className = 'history-total-btn';
+    totalBtn.textContent = `¥${calcRowSales(visit)}`;
+    totalBtn.addEventListener('click', () => openPaymentDetailModal(visit, groupNumber));
+    totalTd.appendChild(totalBtn);
+    tr.appendChild(totalTd);
 
-    const toggleTd = document.createElement('td');
-    const toggleButton = document.createElement('button');
-    toggleButton.type = 'button';
-    toggleButton.dataset.action = 'toggle-detail';
-    toggleButton.textContent = '詳細';
-    toggleButton.addEventListener('click', () => {
-      detailRow.hidden = !detailRow.hidden;
-      toggleButton.textContent = detailRow.hidden ? '詳細' : '閉じる';
-    });
-    toggleTd.appendChild(toggleButton);
-    tr.appendChild(toggleTd);
+    const noteTd = document.createElement('td');
+    noteTd.textContent = visit.note || '';
+    tr.appendChild(noteTd);
 
     tbody.appendChild(tr);
-    tbody.appendChild(detailRow);
-  }
+  });
 
   table.appendChild(tbody);
   container.appendChild(table);
@@ -174,7 +197,7 @@ export async function initHistory(root, { dbName = 'list-app-db' } = {}) {
   dateInput.value = new Date().toISOString().slice(0, 10);
 
   async function refresh() {
-    const visits = await getVisitsByStoreAndDate(db, STORE_NAME, dateInput.value);
+    const visits = sortVisitsByGroup(await getVisitsByStoreAndDate(db, STORE_NAME, dateInput.value));
     renderHistoryTable(tableContainer, visits);
     renderHistoryTotals(totalsContainer, visits);
   }

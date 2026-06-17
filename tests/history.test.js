@@ -21,6 +21,8 @@ function makeVisit(overrides = {}) {
     table: '3',
     completed: true,
     note: '常連',
+    nominations: [],
+    castColumns: Array(11).fill(null).map(() => ['', '']),
     payments: [
       { method: '現金', amount: 5000 },
       { method: 'カード', amount: 3000 },
@@ -30,73 +32,66 @@ function makeVisit(overrides = {}) {
 }
 
 describe('renderHistoryTable', () => {
-  it('renders one row per visit with group number, table, times, payment breakdown, total, note and detail toggle', () => {
+  it('renders headers: No., 開始時, 組, 完了時, 卓番, 付け回し履歴, 合計, 備考', () => {
     const container = document.createElement('div');
-    const visit = makeVisit();
-
-    renderHistoryTable(container, [visit]);
+    renderHistoryTable(container, [makeVisit()]);
 
     const headers = Array.from(container.querySelectorAll('th')).map((th) => th.textContent);
-    expect(headers).toEqual(['組', '卓', '開始', '完了', '現金', 'カード', 'キャッシュレス', '売掛', '合計', '備考', '詳細']);
-
-    const cells = Array.from(container.querySelectorAll('tbody tr.visit-row td')).map((td) => td.textContent);
-    expect(cells).toEqual(['1', '3', '20:00', '21:30', '5000', '3000', '0', '0', '¥8000', '常連', '詳細']);
+    expect(headers).toEqual(['No.', '開始時', '組', '完了時', '卓番', '付け回し履歴', '合計', '備考']);
   });
 
-  it('shows a hidden detail row that reveals times, nominations, cast assignments and itemized payment history when toggled', () => {
+  it('renders correct cell values for a visit', () => {
+    const container = document.createElement('div');
+    renderHistoryTable(container, [makeVisit()]);
+
+    const row = container.querySelector('tbody tr.visit-row');
+    const cells = Array.from(row.children);
+
+    expect(cells[0].textContent).toBe('1');      // No.
+    expect(cells[1].textContent).toBe('20:00');  // 開始時
+    expect(cells[2].textContent).toBe('1');      // 組
+    expect(cells[3].textContent).toBe('21:30');  // 完了時
+    expect(cells[4].textContent).toBe('3');      // 卓番
+    // cells[5] = 付け回し履歴
+    expect(cells[6].querySelector('button').textContent).toBe('¥8000'); // 合計
+    expect(cells[7].textContent).toBe('常連');   // 備考
+  });
+
+  it('opens a payment detail modal when the 合計 button is clicked', () => {
     const container = document.createElement('div');
     const visit = makeVisit({
       plannedEndTime: '21:00',
-      nominations: [
-        { name: 'みお', isRed: false },
-        { name: 'れな', isRed: true },
-      ],
-      castColumns: [
-        ['ゆい', ''],
-        ['みお', 'りお'],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-      ],
-      payments: [
-        { method: '現金', amount: 3000 },
-        { method: '現金', amount: 2000 },
-        { method: 'カード', amount: 3000 },
-      ],
+      nominations: [{ name: 'みお', isRed: false }],
+      castColumns: [['ゆい', ''], ...Array(10).fill(null).map(() => ['', ''])],
     });
 
     renderHistoryTable(container, [visit]);
 
-    const toggle = container.querySelector('[data-action="toggle-detail"]');
-    expect(toggle.textContent).toBe('詳細');
+    const totalBtn = container.querySelector('[data-action="show-payment-detail"]');
+    expect(totalBtn).not.toBeNull();
+    totalBtn.click();
 
-    const detailRow = container.querySelector('tr.history-detail-row');
-    expect(detailRow.hidden).toBe(true);
+    const modal = document.querySelector('.history-payment-modal');
+    expect(modal).not.toBeNull();
+    expect(modal.textContent).toContain('¥8000');
+    expect(modal.textContent).toContain('現金 ¥5000');
+    expect(modal.textContent).toContain('カード ¥3000');
+    expect(modal.textContent).toContain('みお');
+    expect(modal.textContent).toContain('ゆい');
+  });
 
-    toggle.click();
+  it('shows cast column summary in 付け回し履歴 cell', () => {
+    const container = document.createElement('div');
+    const castColumns = Array(11).fill(null).map(() => ['', '']);
+    castColumns[0] = ['アカリ', 'ユキ'];
+    castColumns[1] = ['みお', ''];
+    const visit = makeVisit({ castColumns });
 
-    expect(detailRow.hidden).toBe(false);
-    expect(toggle.textContent).toBe('閉じる');
-    expect(detailRow.textContent).toContain('開始 20:00');
-    expect(detailRow.textContent).toContain('終了予定 21:00');
-    expect(detailRow.textContent).toContain('完了 21:30');
-    expect(detailRow.textContent).toContain('みお');
-    expect(detailRow.textContent).toContain('れな');
-    expect(detailRow.textContent).toContain('S: ゆい');
-    expect(detailRow.textContent).toContain('N1: みお・りお');
+    renderHistoryTable(container, [visit]);
 
-    const paymentItems = Array.from(detailRow.querySelectorAll('.history-detail-payments li')).map((li) => li.textContent);
-    expect(paymentItems).toEqual(['現金 ¥3000', '現金 ¥2000', 'カード ¥3000']);
-
-    toggle.click();
-    expect(detailRow.hidden).toBe(true);
-    expect(toggle.textContent).toBe('詳細');
+    const row = container.querySelector('tbody tr.visit-row');
+    expect(row.children[5].textContent).toContain('S: アカリ・ユキ');
+    expect(row.children[5].textContent).toContain('N1: みお');
   });
 });
 

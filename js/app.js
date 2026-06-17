@@ -17,6 +17,7 @@ import {
   addMinutesToTime,
   cycleExtension,
   assignGroupNumbers,
+  sortVisitsByGroup,
 } from './models.js';
 import { renderGrid } from './grid.js';
 import { openCastPopover, closeCastPopover } from './castPopover.js';
@@ -71,7 +72,7 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   }
 
   async function refresh() {
-    visits = await getVisitsByStoreAndDate(db, STORE_NAME, today);
+    visits = sortVisitsByGroup(await getVisitsByStoreAndDate(db, STORE_NAME, today));
     renderGrid(gridContainer, visits, {
       onCellClick: handleCellClick,
       onComplete: handleComplete,

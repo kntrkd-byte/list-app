@@ -741,11 +741,8 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(15, auto);
-  grid-auto-flow: column;
-  gap: 0 1.5rem;
-  max-width: 900px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0 1rem;
 }
 
 .cast-list li {
@@ -784,8 +781,6 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
 }
 
 #note-presets-list {
-  max-height: calc(5 * 41px + 1rem);
-  overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 0.5rem;
@@ -796,19 +791,20 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
 }
 
 .note-presets-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.note-presets-list li:last-child {
-  border-bottom: none;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
 }
 
 button[data-field="table"] {
@@ -1026,4 +1022,50 @@ textarea {
 
 button {
   cursor: pointer;
+}
+
+.history-total-btn {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--color-accent);
+  background: transparent;
+  border: none;
+}
+
+.history-cast-cell {
+  font-size: 0.75rem;
+  text-align: left;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-payment-modal {
+  width: min(92vw, 360px);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.history-payment-section {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.history-payment-label {
+  font-weight: bold;
+  color: var(--color-text);
+  margin-top: 0.75rem;
+}
+
+.history-payment-total {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
 }

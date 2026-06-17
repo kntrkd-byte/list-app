@@ -136,3 +136,18 @@ export function assignGroupNumbers(visits) {
 
   return groupNumbers;
 }
+
+export function sortVisitsByGroup(visits) {
+  const groupMinId = new Map();
+  for (const v of visits) {
+    const cur = groupMinId.get(v.groupId);
+    if (cur === undefined || v.id < cur) {
+      groupMinId.set(v.groupId, v.id);
+    }
+  }
+  return [...visits].sort((a, b) => {
+    const ga = groupMinId.get(a.groupId);
+    const gb = groupMinId.get(b.groupId);
+    return ga !== gb ? ga - gb : a.id - b.id;
+  });
+}
