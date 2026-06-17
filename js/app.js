@@ -23,7 +23,7 @@ import { openCastPopover, closeCastPopover } from './castPopover.js';
 import { openAccountingModal, closeAccountingModal } from './paymentEditor.js';
 import { openNewVisitModal } from './newVisitModal.js';
 import { openNotePresetsModal } from './notePresetsModal.js';
-import { openCompleteModal, openRevertModal, closeCompleteModal } from './completeModal.js';
+import { openOperationsModal, closeOperationsModal } from './operationsModal.js';
 
 const STORE_NAME = 'STORE';
 const DEFAULT_CASTS = ['マイ', 'リン', 'カリン', 'トモミ', 'サキ'];
@@ -78,8 +78,6 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
       onTableChange: handleFieldChange('table'),
       onNoteChange: handleFieldChange('note'),
       onSetPlannedEndTime: handleSetPlannedEndTime,
-      onDeleteVisit: handleDeleteVisit,
-      onAddToGroup: handleAddToGroup,
       onToggleNominationColor: handleToggleNominationColor,
       onCycleExtension: handleCycleExtension,
       onEditPlannedEndTime: handleEditPlannedEndTime,
@@ -114,25 +112,38 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
     };
   }
 
+  function newGroupId() {
+    return typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
   function handleComplete(visit) {
     closeCastPopover();
     closeAccountingModal();
     const groupNumber = assignGroupNumbers(visits).get(visit.groupId);
-    if (visit.completed) {
-      openRevertModal(visit, groupNumber, async () => {
+    const groupSize = visits.filter((v) => v.groupId === visit.groupId).length;
+    openOperationsModal(visit, { groupNumber, groupSize }, {
+      onComplete: async (endTime) => {
+        markComplete(visit, endTime);
+        await updateVisit(db, visit);
+        await refresh();
+      },
+      onRevert: async () => {
         visit.completed = false;
         visit.endTime = '';
         visit.completedAt = '';
         await updateVisit(db, visit);
         await refresh();
-      });
-    } else {
-      openCompleteModal(visit, groupNumber, async (endTime) => {
-        markComplete(visit, endTime);
+      },
+      onAddToGroup: () => handleAddToGroup(visit),
+      onSeparate: async () => {
+        visit.groupId = newGroupId();
         await updateVisit(db, visit);
         await refresh();
-      });
-    }
+      },
+      onDelete: () => handleDeleteVisit(visit),
+    });
   }
 
   async function handleSetPlannedEndTime(visit, minutes) {
@@ -176,7 +187,7 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   async function handleCellClick(visit, field, anchorEl, index) {
     closeCastPopover();
     closeAccountingModal();
-    closeCompleteModal();
+    closeOperationsModal();
 
     if (field === 'nomination') {
       const nominations = visit.nominations || [];

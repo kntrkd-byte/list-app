@@ -233,10 +233,10 @@ table.visit-grid th:nth-child(25), table.visit-grid td:nth-child(25) {
   padding: 0;
 }
 
-/* 右固定列: 会計 / 備考 / 操作 */
+/* 右固定列: 会計 / 備考 */
 table.visit-grid th:nth-child(27), table.visit-grid td:nth-child(27) {
   position: sticky;
-  right: 117px;
+  right: 53px;
   width: 158px;
   background-color: var(--color-surface);
   z-index: 3;
@@ -245,20 +245,12 @@ table.visit-grid th:nth-child(27), table.visit-grid td:nth-child(27) {
 
 table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   position: sticky;
-  right: 64px;
+  right: 0;
   width: 53px;
   background-color: var(--color-surface);
   z-index: 2;
   padding-left: 0;
   padding-right: 0;
-}
-
-table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
-  position: sticky;
-  right: 0;
-  width: 64px;
-  background-color: var(--color-surface);
-  z-index: 2;
 }
 
 /* 延長タイムラインバー */
@@ -356,7 +348,8 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
 .cast-popover,
 .accounting-modal,
 .new-visit-modal,
-.complete-modal {
+.complete-modal,
+.operations-modal {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -369,7 +362,8 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
 .cast-popover,
 .accounting-modal,
 .new-visit-modal,
-.complete-modal {
+.complete-modal,
+.operations-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -630,14 +624,43 @@ table.visit-grid th:nth-child(29), table.visit-grid td:nth-child(29) {
 
 .accounting-modal [data-action="close"],
 .new-visit-modal [data-action="close"],
-.complete-modal [data-action="close"] {
+.complete-modal [data-action="close"],
+.operations-modal [data-action="close"] {
   position: absolute;
   top: 4px;
   right: 4px;
 }
 
-.complete-modal {
+.complete-modal,
+.operations-modal {
   width: min(90vw, 320px);
+}
+
+.operations-modal-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.operations-modal-info {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.operations-modal-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.operations-modal-time {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.25rem;
+  padding: 0.5rem;
+  font-size: 1.2rem;
 }
 
 .complete-modal-title {
@@ -962,16 +985,21 @@ table.visit-grid td.start-cell.menu-open {
   border-bottom: none;
 }
 
-.operations-cell button {
+.op-button {
   display: block;
   width: 100%;
-  font-size: 0.65rem;
-  padding: 2px 0;
-  line-height: 1.15;
+  padding: 0.7rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
-.operations-cell button + button {
-  margin-top: 2px;
+.op-button--danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.op-button--cancel {
+  color: var(--color-text-muted);
 }
 
 .nomination-row {

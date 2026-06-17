@@ -8,7 +8,7 @@ function buildHeaders() {
   for (let i = 1; i <= 10; i += 1) {
     headers.push('', `N${i}`);
   }
-  headers.push('会計', '備考', '操作');
+  headers.push('会計', '備考');
   return headers;
 }
 
@@ -19,8 +19,6 @@ export function renderGrid(container, visits, options = {}) {
     onTableChange = () => {},
     onNoteChange = () => {},
     onSetPlannedEndTime = () => {},
-    onDeleteVisit = () => {},
-    onAddToGroup = () => {},
     onToggleNominationColor = () => {},
     onCycleExtension = () => {},
     onEditPlannedEndTime = () => {},
@@ -67,7 +65,6 @@ export function renderGrid(container, visits, options = {}) {
 
     tr.appendChild(makeButtonCell(`¥${calcRowSales(visit)}`, visit, 'accounting', onCellClick));
     tr.appendChild(makeNoteClickCell(visit, onCellClick));
-    tr.appendChild(makeOperationsCell(visit, onDeleteVisit, onAddToGroup));
 
     tbody.appendChild(tr);
   });
@@ -217,27 +214,6 @@ function makeStartCell(visit, onSetPlannedEndTime, onEditPlannedEndTime) {
   row2.appendChild(plannedSpan);
   row2.appendChild(plannedInput);
   td.appendChild(row2);
-
-  return td;
-}
-
-function makeOperationsCell(visit, onDeleteVisit, onAddToGroup) {
-  const td = document.createElement('td');
-  td.className = 'operations-cell';
-
-  const deleteButton = document.createElement('button');
-  deleteButton.type = 'button';
-  deleteButton.dataset.action = 'delete';
-  deleteButton.textContent = '削除';
-  deleteButton.addEventListener('click', () => onDeleteVisit(visit));
-  td.appendChild(deleteButton);
-
-  const addButton = document.createElement('button');
-  addButton.type = 'button';
-  addButton.dataset.action = 'add-to-group';
-  addButton.textContent = '組に追加';
-  addButton.addEventListener('click', () => onAddToGroup(visit));
-  td.appendChild(addButton);
 
   return td;
 }

@@ -70,13 +70,12 @@ describe('initApp', () => {
     findConfirmButton(modal).click();
     await flushAsync();
 
-    const completeButton = root.querySelector('[data-field="complete"]');
-    completeButton.click();
+    root.querySelector('[data-field="complete"]').click();
     await flushAsync();
 
-    const completeModal = document.querySelector('.complete-modal');
-    expect(completeModal).not.toBeNull();
-    completeModal.querySelector('.complete-confirm').click();
+    const opsModal = document.querySelector('.operations-modal');
+    expect(opsModal).not.toBeNull();
+    opsModal.querySelector('.complete-confirm').click();
     await flushAsync();
 
     const row = root.querySelector('#grid tbody tr');
@@ -177,7 +176,9 @@ describe('initApp', () => {
 
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-    root.querySelector('[data-action="delete"]').click();
+    root.querySelector('[data-field="complete"]').click();
+    await flushAsync();
+    document.querySelector('.operations-modal [data-action="delete"]').click();
     await flushAsync();
 
     expect(root.querySelectorAll('#grid tbody tr')).toHaveLength(2);
@@ -196,7 +197,9 @@ describe('initApp', () => {
 
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    root.querySelector('[data-action="delete"]').click();
+    root.querySelector('[data-field="complete"]').click();
+    await flushAsync();
+    document.querySelector('.operations-modal [data-action="delete"]').click();
     await flushAsync();
 
     expect(root.querySelectorAll('#grid tbody tr')).toHaveLength(1);
@@ -213,7 +216,9 @@ describe('initApp', () => {
 
     expect(root.querySelectorAll('#grid tbody tr')).toHaveLength(1);
 
-    root.querySelector('[data-action="add-to-group"]').click();
+    root.querySelector('[data-field="complete"]').click();
+    await flushAsync();
+    document.querySelector('.operations-modal [data-action="add-to-group"]').click();
     await flushAsync();
 
     const rows = root.querySelectorAll('#grid tbody tr');

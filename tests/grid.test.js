@@ -23,16 +23,16 @@ function makeVisit(overrides = {}) {
 }
 
 describe('renderGrid', () => {
-  it('renders one row per visit with 29 columns and 29 headers', () => {
+  it('renders one row per visit with 28 columns and 28 headers', () => {
     const container = document.createElement('div');
     renderGrid(container, [makeVisit(), makeVisit({ id: 2 })]);
 
     const headerCells = container.querySelectorAll('thead th');
-    expect(headerCells).toHaveLength(29);
+    expect(headerCells).toHaveLength(28);
 
     const rows = container.querySelectorAll('tbody tr');
     expect(rows).toHaveLength(2);
-    expect(rows[0].children).toHaveLength(29);
+    expect(rows[0].children).toHaveLength(28);
   });
 
   it('wraps the table in a .grid-scroll container', () => {
@@ -262,32 +262,6 @@ describe('renderGrid', () => {
 
     button.click();
     expect(onCellClick).toHaveBeenCalledWith(visit, 'accounting', button);
-  });
-
-  it('calls onDeleteVisit with the visit when the delete button is clicked', () => {
-    const container = document.createElement('div');
-    const onDeleteVisit = vi.fn();
-    const visit = makeVisit();
-
-    renderGrid(container, [visit], { onDeleteVisit });
-
-    const button = container.querySelector('[data-action="delete"]');
-    button.click();
-
-    expect(onDeleteVisit).toHaveBeenCalledWith(visit);
-  });
-
-  it('calls onAddToGroup with the visit when the "組に追加" button is clicked', () => {
-    const container = document.createElement('div');
-    const onAddToGroup = vi.fn();
-    const visit = makeVisit();
-
-    renderGrid(container, [visit], { onAddToGroup });
-
-    const button = container.querySelector('[data-action="add-to-group"]');
-    button.click();
-
-    expect(onAddToGroup).toHaveBeenCalledWith(visit);
   });
 
   it('shows a "未指名" button when nominations is empty', () => {
