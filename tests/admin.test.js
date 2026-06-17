@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initAdmin } from '../js/admin.js';
 import { openDatabase, seedDefaultCasts, getCasts, updateCast, deleteCast, addVisit, addNotePreset, getNotePresets } from '../js/db.js';
+import { flushAsync } from './helpers.js';
 
 function setupRoot() {
   document.body.innerHTML = `
@@ -13,16 +14,6 @@ function setupRoot() {
     <div id="completion-list"></div>
   `;
   return document.body;
-}
-
-function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 0));
-}
-
-async function flushAsync() {
-  for (let i = 0; i < 10; i += 1) {
-    await tick();
-  }
 }
 
 describe('initAdmin', () => {

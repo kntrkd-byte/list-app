@@ -320,4 +320,33 @@ describe('renderGrid', () => {
     expect(rows[0].querySelector('[data-field="nomination"]').classList.contains('nomination-red')).toBe(true);
     expect(container.querySelector('[data-action="add-nomination"]')).toBeNull();
   });
+
+  it('renders a single empty slot with ＋ placeholder when note is blank', () => {
+    const container = document.createElement('div');
+    renderGrid(container, [makeVisit({ note: '' })]);
+
+    const slots = container.querySelectorAll('.note-slot');
+    expect(slots).toHaveLength(1);
+    expect(slots[0].classList.contains('note-slot--empty')).toBe(true);
+    expect(slots[0].textContent).toBe('＋');
+  });
+
+  it('renders a single slot with text when note has one item', () => {
+    const container = document.createElement('div');
+    renderGrid(container, [makeVisit({ note: '常連' })]);
+
+    const slots = container.querySelectorAll('.note-slot');
+    expect(slots).toHaveLength(1);
+    expect(slots[0].textContent).toBe('常連');
+  });
+
+  it('renders two slots when note has two ・-separated items', () => {
+    const container = document.createElement('div');
+    renderGrid(container, [makeVisit({ note: '常連・VIP' })]);
+
+    const slots = container.querySelectorAll('.note-slot');
+    expect(slots).toHaveLength(2);
+    expect(slots[0].textContent).toBe('常連');
+    expect(slots[1].textContent).toBe('VIP');
+  });
 });

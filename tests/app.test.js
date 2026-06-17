@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initApp } from '../js/app.js';
 import { openDatabase, seedDefaultCasts, getCasts, updateCast } from '../js/db.js';
 import { addMinutesToTime } from '../js/models.js';
+import { flushAsync } from './helpers.js';
 
 function setupRoot() {
   document.body.innerHTML = `
@@ -17,16 +18,6 @@ function findConfirmButton(modal) {
   return Array.from(modal.querySelectorAll('button')).find(
     (b) => b.textContent === '来店登録'
   );
-}
-
-function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 0));
-}
-
-async function flushAsync() {
-  for (let i = 0; i < 10; i += 1) {
-    await tick();
-  }
 }
 
 describe('initApp', () => {
@@ -81,6 +72,31 @@ describe('initApp', () => {
     const row = root.querySelector('#grid tbody tr');
     expect(row.classList.contains('completed')).toBe(true);
     expect(root.querySelector('#totals').textContent).toContain('入客数: 1');
+  });
+
+  it('reverts a completed row when 完了を解除 is clicked in the operations panel', async () => {
+    const root = setupRoot();
+    await initApp(root, { dbName: `app-test-db-${dbCounter}` });
+
+    root.querySelector('#new-visit-button').click();
+    const modal = document.querySelector('.new-visit-modal');
+    findConfirmButton(modal).click();
+    await flushAsync();
+
+    root.querySelector('[data-field="complete"]').click();
+    await flushAsync();
+    document.querySelector('.operations-modal .complete-confirm').click();
+    await flushAsync();
+
+    expect(root.querySelector('#grid tbody tr').classList.contains('completed')).toBe(true);
+
+    root.querySelector('[data-field="complete"]').click();
+    await flushAsync();
+    document.querySelector('.operations-modal .revert-confirm').click();
+    await flushAsync();
+
+    expect(root.querySelector('#grid tbody tr').classList.contains('completed')).toBe(false);
+    expect(root.querySelector('#totals').textContent).toContain('入客数: 0');
   });
 
   it('opens a cast popover for the nomination cell using seeded casts', async () => {

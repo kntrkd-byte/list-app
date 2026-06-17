@@ -1,11 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { openDatabase, addVisit, getVisitsByStoreAndDate, updateVisit, deleteVisit } from '../js/db.js';
 import { addCast, getCasts, seedDefaultCasts, updateCast, deleteCast } from '../js/db.js';
 import { addNotePreset, getNotePresets, deleteNotePreset } from '../js/db.js';
 
+let dbCounter = 0;
+const freshDb = () => `test-db-${++dbCounter}`;
+
 describe('openDatabase', () => {
   it('creates visits, casts, and notePresets object stores with expected indexes', async () => {
-    const db = await openDatabase('test-db-1');
+    const db = await openDatabase(freshDb());
 
     expect(Array.from(db.objectStoreNames)).toEqual(
       expect.arrayContaining(['visits', 'casts', 'notePresets'])
@@ -21,7 +24,7 @@ describe('openDatabase', () => {
 
 describe('visits CRUD', () => {
   it('adds a visit and retrieves it by store and date', async () => {
-    const db = await openDatabase('test-db-2');
+    const db = await openDatabase(freshDb());
 
     const visit = {
       store: 'STORE',
@@ -42,7 +45,7 @@ describe('visits CRUD', () => {
   });
 
   it('updates an existing visit', async () => {
-    const db = await openDatabase('test-db-3');
+    const db = await openDatabase(freshDb());
 
     const visit = {
       store: '8Door',
@@ -63,11 +66,31 @@ describe('visits CRUD', () => {
 
     db.close();
   });
+
+  it('returns an empty array for a date with no visits', async () => {
+    const db = await openDatabase(freshDb());
+    await addVisit(db, { store: 'STORE', date: '2026-06-10', groupId: 'g1', startTime: '20:00' });
+
+    const results = await getVisitsByStoreAndDate(db, 'STORE', '2026-01-01');
+    expect(results).toHaveLength(0);
+
+    db.close();
+  });
+
+  it('returns an empty array for a different store', async () => {
+    const db = await openDatabase(freshDb());
+    await addVisit(db, { store: 'STORE', date: '2026-06-10', groupId: 'g1', startTime: '20:00' });
+
+    const results = await getVisitsByStoreAndDate(db, 'OTHER', '2026-06-10');
+    expect(results).toHaveLength(0);
+
+    db.close();
+  });
 });
 
 describe('casts', () => {
   it('seeds default casts only once and lists them by store', async () => {
-    const db = await openDatabase('test-db-4');
+    const db = await openDatabase(freshDb());
 
     await seedDefaultCasts(db, 'STORE', ['マイ', 'リン', 'カリン']);
     await seedDefaultCasts(db, 'STORE', ['マイ', 'リン', 'カリン']);
@@ -81,7 +104,7 @@ describe('casts', () => {
   });
 
   it('addCast adds a single cast for a store', async () => {
-    const db = await openDatabase('test-db-5');
+    const db = await openDatabase(freshDb());
 
     await addCast(db, { store: '8Door', name: 'サキ', working: true });
     const casts = await getCasts(db, '8Door');
@@ -95,7 +118,7 @@ describe('casts', () => {
 
 describe('casts CRUD - update/delete', () => {
   it('updateCast updates name and working flag', async () => {
-    const db = await openDatabase('test-db-6');
+    const db = await openDatabase(freshDb());
     const id = await addCast(db, { store: 'STORE', name: 'マイ', working: true });
 
     await updateCast(db, { id, store: 'STORE', name: 'マイコ', working: false });
@@ -108,7 +131,7 @@ describe('casts CRUD - update/delete', () => {
   });
 
   it('deleteCast removes a cast', async () => {
-    const db = await openDatabase('test-db-7');
+    const db = await openDatabase(freshDb());
     const id1 = await addCast(db, { store: 'STORE', name: 'マイ', working: true });
     const id2 = await addCast(db, { store: 'STORE', name: 'リン', working: true });
 
@@ -124,7 +147,7 @@ describe('casts CRUD - update/delete', () => {
 
 describe('visits CRUD - delete', () => {
   it('deleteVisit removes a visit by id', async () => {
-    const db = await openDatabase('test-db-8');
+    const db = await openDatabase(freshDb());
 
     const id1 = await addVisit(db, {
       store: 'STORE',
@@ -151,7 +174,7 @@ describe('visits CRUD - delete', () => {
 
 describe('notePresets CRUD', () => {
   it('addNotePreset adds a preset and getNotePresets retrieves it by store', async () => {
-    const db = await openDatabase('test-db-9');
+    const db = await openDatabase(freshDb());
 
     const id = await addNotePreset(db, {
       store: 'STORE',
@@ -167,7 +190,7 @@ describe('notePresets CRUD', () => {
   });
 
   it('getNotePresets filters by store', async () => {
-    const db = await openDatabase('test-db-10');
+    const db = await openDatabase(freshDb());
 
     await addNotePreset(db, { store: 'STORE', text: '常連' });
     await addNotePreset(db, { store: '8Door', text: '新規' });
@@ -184,7 +207,7 @@ describe('notePresets CRUD', () => {
   });
 
   it('deleteNotePreset removes a preset', async () => {
-    const db = await openDatabase('test-db-11');
+    const db = await openDatabase(freshDb());
 
     const id1 = await addNotePreset(db, { store: 'STORE', text: '常連' });
     const id2 = await addNotePreset(db, { store: 'STORE', text: '新規' });

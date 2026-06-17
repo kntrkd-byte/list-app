@@ -1,12 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { createVisitGroup, addPayment, removePayment, calcRowSales, cycleExtension } from '../js/models.js';
 import {
+  createVisitGroup,
+  addPayment,
+  removePayment,
+  calcRowSales,
+  cycleExtension,
   markComplete,
   calcDailyTotals,
   roundTimeTo5Minutes,
   addMinutesToTime,
   createVisitInGroup,
   assignGroupNumbers,
+  sortVisitsByGroup,
 } from '../js/models.js';
 
 describe('createVisitGroup', () => {
@@ -250,5 +255,52 @@ describe('assignGroupNumbers', () => {
     expect(numbers.get('g1')).toBe(1);
     expect(numbers.get('g2')).toBe(2);
     expect(numbers.get('g3')).toBe(3);
+  });
+});
+
+describe('sortVisitsByGroup', () => {
+  it('keeps members of the same group contiguous', () => {
+    const visits = [
+      { id: 1, groupId: 'gA' },
+      { id: 2, groupId: 'gB' },
+      { id: 3, groupId: 'gA' },
+    ];
+
+    const sorted = sortVisitsByGroup(visits);
+    expect(sorted.map((v) => v.groupId)).toEqual(['gA', 'gA', 'gB']);
+  });
+
+  it('orders groups by their minimum member id', () => {
+    const visits = [
+      { id: 3, groupId: 'gC' },
+      { id: 1, groupId: 'gA' },
+      { id: 2, groupId: 'gB' },
+    ];
+
+    const sorted = sortVisitsByGroup(visits);
+    expect(sorted.map((v) => v.id)).toEqual([1, 2, 3]);
+  });
+
+  it('does not mutate the original array', () => {
+    const visits = [
+      { id: 2, groupId: 'gB' },
+      { id: 1, groupId: 'gA' },
+    ];
+    const original = [...visits];
+    sortVisitsByGroup(visits);
+    expect(visits).toEqual(original);
+  });
+
+  it('places a separated row after the group it left when its id falls between existing members', () => {
+    const visits = [
+      { id: 1, groupId: 'gA' },
+      { id: 2, groupId: 'gC' },
+      { id: 3, groupId: 'gA' },
+      { id: 4, groupId: 'gB' },
+      { id: 5, groupId: 'gB' },
+    ];
+
+    const sorted = sortVisitsByGroup(visits);
+    expect(sorted.map((v) => v.groupId)).toEqual(['gA', 'gA', 'gC', 'gB', 'gB']);
   });
 });
