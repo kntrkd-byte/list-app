@@ -14,10 +14,12 @@ export function exportDailyExcel(visits, date) {
   const headers = [
     'No.', '日付', '組', '開始', '完了時刻', '卓番',
     '指名1', '指名2',
-    ...CAST_LABELS.flatMap((l) => [`${l}上`, `${l}下`]),
+    ...CAST_LABELS,
     ...Array.from({ length: 10 }, (_, i) => `延長${i + 1}`),
     '合計', '備考',
   ];
+
+  const joinSlots = ([a, b]) => (a && b) ? `${a}/${b}` : (a || b || '');
 
   const rows = visits.map((v, i) => {
     const nominations = v.nominations || [];
@@ -34,7 +36,7 @@ export function exportDailyExcel(visits, date) {
       v.table || '',
       nominations[0]?.name || '',
       nominations[1]?.name || '',
-      ...castColumns.flatMap(([a, b]) => [a || '', b || '']),
+      ...castColumns.map(joinSlots),
       ...extensions.map((e) => (e ? e.minutes : '')),
       total || '',
       v.note || '',
