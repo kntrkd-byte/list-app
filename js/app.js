@@ -49,6 +49,7 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
   }
 
   let visits = [];
+  let businessClosed = false;
   const allCasts = await getCasts(db, STORE_NAME);
   const workingCasts = allCasts.filter((cast) => cast.working);
 
@@ -105,11 +106,28 @@ export async function initApp(root, { dbName = 'list-app-db' } = {}) {
       totalsContainer.appendChild(card);
     }
 
-    const exportBtn = document.createElement('button');
-    exportBtn.className = 'export-btn';
-    exportBtn.textContent = 'Excelで保存';
-    exportBtn.addEventListener('click', () => exportDailyExcel(visits, today));
-    totalsContainer.appendChild(exportBtn);
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'totals-btn-group';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-business-btn';
+    closeBtn.textContent = '営業終了';
+    closeBtn.addEventListener('click', () => {
+      if (!confirm('営業を終了しますか？')) return;
+      businessClosed = true;
+      renderTotals();
+    });
+    btnGroup.appendChild(closeBtn);
+
+    if (businessClosed) {
+      const exportBtn = document.createElement('button');
+      exportBtn.className = 'export-btn';
+      exportBtn.textContent = 'Excelで保存';
+      exportBtn.addEventListener('click', () => exportDailyExcel(visits, today));
+      btnGroup.appendChild(exportBtn);
+    }
+
+    totalsContainer.appendChild(btnGroup);
   }
 
   function handleFieldChange(field) {

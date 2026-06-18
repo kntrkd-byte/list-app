@@ -353,6 +353,28 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   background-color: var(--color-surface);
 }
 
+.totals-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.close-business-btn {
+  border: 1px solid var(--color-extension-bar);
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  background-color: var(--color-surface);
+  color: var(--color-extension-bar);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.close-business-btn:active {
+  opacity: 0.7;
+}
+
 .export-btn {
   border: 1px solid var(--color-border);
   border-radius: 8px;
