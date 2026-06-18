@@ -25,7 +25,9 @@ export function exportDailyExcel(visits, date) {
     const nominations = v.nominations || [];
     const castColumns = v.castColumns || Array(11).fill(null).map(() => ['', '']);
     const extensions = v.extensions || Array(10).fill(null);
-    const total = (v.payments || []).reduce((sum, p) => sum + p.amount, 0);
+    const paymentHistory = (v.payments || [])
+      .map((p) => `${p.method}:${p.amount}`)
+      .join(' / ');
 
     return [
       i + 1,
@@ -38,7 +40,7 @@ export function exportDailyExcel(visits, date) {
       nominations[1]?.name || '',
       ...castColumns.map(joinSlots),
       ...extensions.map((e) => (e ? e.minutes : '')),
-      total || '',
+      paymentHistory,
       v.note || '',
     ];
   });
