@@ -554,6 +554,39 @@ table.visit-grid th:nth-child(28), table.visit-grid td:nth-child(28) {
   font-size: 1.1rem;
 }
 
+.note-slot-section {
+  margin-bottom: 1.2rem;
+}
+
+.note-slot-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #aaa);
+  margin-bottom: 0.4rem;
+}
+
+.note-slot-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  font-size: 1rem;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
+.note-slot-free-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-top: 0.4rem;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
 .new-visit-modal .group-size-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

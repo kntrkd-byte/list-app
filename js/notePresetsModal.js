@@ -2,6 +2,70 @@ let currentModal = null;
 let currentOverlay = null;
 let outsideClickHandler = null;
 
+const FREE_INPUT = '__free__';
+
+function makeNoteSlot(label, presets, initialValue) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'note-slot-section';
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'note-slot-label';
+  labelEl.textContent = label;
+  wrapper.appendChild(labelEl);
+
+  const select = document.createElement('select');
+  select.className = 'note-slot-select';
+
+  const blankOpt = document.createElement('option');
+  blankOpt.value = '';
+  blankOpt.textContent = '-- 選択 --';
+  select.appendChild(blankOpt);
+
+  for (const preset of presets) {
+    const opt = document.createElement('option');
+    opt.value = preset.text;
+    opt.textContent = preset.text;
+    select.appendChild(opt);
+  }
+
+  const freeOpt = document.createElement('option');
+  freeOpt.value = FREE_INPUT;
+  freeOpt.textContent = '自由入力...';
+  select.appendChild(freeOpt);
+
+  const isPreset = presets.some((p) => p.text === initialValue);
+  if (initialValue && isPreset) {
+    select.value = initialValue;
+  } else if (initialValue) {
+    select.value = FREE_INPUT;
+  } else {
+    select.value = '';
+  }
+
+  wrapper.appendChild(select);
+
+  const freeInput = document.createElement('input');
+  freeInput.type = 'text';
+  freeInput.className = 'note-slot-free-input';
+  freeInput.placeholder = '自由入力（最大20文字）';
+  freeInput.maxLength = 20;
+  freeInput.style.display = select.value === FREE_INPUT ? '' : 'none';
+  if (initialValue && !isPreset) freeInput.value = initialValue;
+  wrapper.appendChild(freeInput);
+
+  select.addEventListener('change', () => {
+    freeInput.style.display = select.value === FREE_INPUT ? '' : 'none';
+    if (select.value !== FREE_INPUT) freeInput.value = '';
+  });
+
+  wrapper.getValue = () => {
+    if (select.value === FREE_INPUT) return freeInput.value.trim();
+    return select.value;
+  };
+
+  return wrapper;
+}
+
 export function openNotePresetsModal(presets, currentNote, onChange) {
   closeNotePresetsModal();
 
@@ -15,7 +79,7 @@ export function openNotePresetsModal(presets, currentNote, onChange) {
 
   const title = document.createElement('div');
   title.className = 'modal-title';
-  title.textContent = '備考を選択';
+  title.textContent = '備考';
   modal.appendChild(title);
 
   const closeButton = document.createElement('button');
@@ -25,79 +89,21 @@ export function openNotePresetsModal(presets, currentNote, onChange) {
   closeButton.addEventListener('click', () => closeNotePresetsModal());
   modal.appendChild(closeButton);
 
-  const selectedDisplay = document.createElement('div');
-  selectedDisplay.className = 'note-presets-selected';
   const [first = '', second = ''] = (currentNote || '').split('・');
-  selectedDisplay.innerHTML = `<span>選択中:</span> <span class="note-selected-1">${first}</span><span class="note-selected-sep"> / </span><span class="note-selected-2">${second}</span>`;
-  modal.appendChild(selectedDisplay);
 
-  const presetsContainer = document.createElement('div');
-  presetsContainer.className = 'note-presets-buttons';
-
-  const selected = new Set();
-  if (first) selected.add(first);
-  if (second) selected.add(second);
-
-  for (const preset of presets) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'note-preset-btn';
-    button.textContent = preset.text;
-    if (selected.has(preset.text)) {
-      button.classList.add('selected');
-    }
-    button.addEventListener('click', () => {
-      if (selected.has(preset.text)) {
-        selected.delete(preset.text);
-        button.classList.remove('selected');
-      } else if (selected.size < 2) {
-        selected.add(preset.text);
-        button.classList.add('selected');
-      }
-      updateDisplay();
-    });
-    presetsContainer.appendChild(button);
-  }
-
-  function updateDisplay() {
-    const items = Array.from(selected);
-    selectedDisplay.innerHTML = `<span>選択中:</span> <span class="note-selected-1">${items[0] || ''}</span><span class="note-selected-sep"> / </span><span class="note-selected-2">${items[1] || ''}</span>`;
-  }
-
-  modal.appendChild(presetsContainer);
-
-  const inputSection = document.createElement('div');
-  inputSection.className = 'note-presets-input-section';
-
-  const inputLabel = document.createElement('div');
-  inputLabel.className = 'note-presets-input-label';
-  inputLabel.textContent = 'または自由入力:';
-  inputSection.appendChild(inputLabel);
-
-  const customInput = document.createElement('input');
-  customInput.type = 'text';
-  customInput.className = 'note-presets-custom-input';
-  customInput.placeholder = 'フリー入力（最大20文字）';
-  customInput.maxLength = 20;
-  inputSection.appendChild(customInput);
-
-  modal.appendChild(inputSection);
+  const slot1 = makeNoteSlot('備考1', presets, first);
+  const slot2 = makeNoteSlot('備考2', presets, second);
+  modal.appendChild(slot1);
+  modal.appendChild(slot2);
 
   const confirmButton = document.createElement('button');
   confirmButton.type = 'button';
   confirmButton.className = 'note-presets-confirm';
   confirmButton.textContent = '決定';
   confirmButton.addEventListener('click', () => {
-    const items = Array.from(selected);
-    const customText = customInput.value.trim();
-
-    let result = '';
-    if (customText) {
-      result = customText;
-    } else if (items.length > 0) {
-      result = items.join('・');
-    }
-
+    const v1 = slot1.getValue();
+    const v2 = slot2.getValue();
+    const result = [v1, v2].filter(Boolean).join('・');
     onChange(result);
     closeNotePresetsModal();
   });
@@ -107,22 +113,14 @@ export function openNotePresetsModal(presets, currentNote, onChange) {
   currentModal = modal;
 
   outsideClickHandler = (event) => {
-    if (!modal.contains(event.target)) {
-      closeNotePresetsModal();
-    }
+    if (!modal.contains(event.target)) closeNotePresetsModal();
   };
   document.addEventListener('click', outsideClickHandler, { capture: true });
 }
 
 export function closeNotePresetsModal() {
-  if (currentModal) {
-    currentModal.remove();
-    currentModal = null;
-  }
-  if (currentOverlay) {
-    currentOverlay.remove();
-    currentOverlay = null;
-  }
+  if (currentModal) { currentModal.remove(); currentModal = null; }
+  if (currentOverlay) { currentOverlay.remove(); currentOverlay = null; }
   if (outsideClickHandler) {
     document.removeEventListener('click', outsideClickHandler, { capture: true });
     outsideClickHandler = null;
